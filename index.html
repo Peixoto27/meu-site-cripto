@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinais Coin - Netlify com Dados Reais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00f5ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #00f5ff;
+            box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #00f5ff, #00ff88);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 245, 255, 0.4);
+        }
+
+        .error-login {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid #ff4757;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .main-container {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00f5ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .signal-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .crypto-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .signal-type {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .signal-type.buy {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .signal-type.sell {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid #ff4757;
+        }
+
+        .signal-type.hold {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .price-target {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .price-current {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .price-change {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .change-24h {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .change-24h.positive {
+            color: #00ff88;
+        }
+
+        .change-24h.negative {
+            color: #ff4757;
+        }
+
+        .signal-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .api-source {
+            text-align: center;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #00f5ff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid #ff4757;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00f5ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid #ff4757;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff4757;
+        }
+
+        .update-time {
+            text-align: center;
+            opacity: 0.7;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .signals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .signal-details {
+                grid-template-columns: 1fr;
+            }
+
+            .logout-btn {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 20px auto;
+                display: block;
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Tela de Login -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <div class="logo">🚀 Sinais Coin</div>
+            <div class="subtitle">Sistema Protegido por Senha</div>
+            <div class="status-badge">🔒 Acesso Restrito</div>
+            <div class="status-badge">📊 CoinGecko Real</div>
+            <div class="status-badge">✅ Dados 100% Reais</div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="password">Senha de Acesso:</label>
+                    <input type="password" id="password" placeholder="Digite sua senha..." required>
+                </div>
+                <button type="submit" class="login-btn">🔓 Acessar Sistema</button>
+                <div id="errorLogin" class="error-login">
+                    ❌ Senha incorreta! Tente novamente.
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interface Principal -->
+    <div id="mainContainer" class="main-container">
+        <div class="logout-btn" onclick="logout()">🚪 Sair</div>
+        
+        <div class="header">
+            <h1>🚀 Sinais Coin - Netlify + APIs Reais</h1>
+            <div class="status-badge">🟢 Netlify Online</div>
+            <div class="status-badge">📊 CoinGecko Live</div>
+            <div class="status-badge">🤖 IA Ativa</div>
+            <div class="status-badge">✅ Dados 100% Reais</div>
+        </div>
+
+        <div class="stats-section">
+            <h3>📊 Estatísticas em Tempo Real</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCoins">8</div>
+                    <div class="stat-label">Moedas Monitoradas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="apiStatus">🟢</div>
+                    <div class="stat-label">Status da API</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lastUpdate">-</div>
+                    <div class="stat-label">Última Atualização</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Dados Reais</div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin-bottom: 20px;">📈 Preços 100% Reais - CoinGecko API</h3>
+        
+        <div id="signalsContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>Carregando dados 100% reais das APIs...</div>
+            </div>
+        </div>
+
+        <div class="update-time">
+            ⏰ Última atualização: <span id="updateTime">-</span> | 🌐 Netlify + 📡 CoinGecko API
+        </div>
+    </div>
+
+    <script>
+        // Senha configurável - você pode alterar aqui
+        const CORRECT_PASSWORD = 'CryptoSignals2025!';
+        
+        // Moedas para monitorar (IDs do CoinGecko)
+        const COINS = [
+            { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin' },
+            { id: 'ethereum', symbol: 'ETH', name: 'Ethereum' },
+            { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin' },
+            { id: 'floki', symbol: 'FLOKI', name: 'Floki' },
+            { id: 'pepe', symbol: 'PEPE', name: 'Pepe' },
+            { id: 'bonk', symbol: 'BONK', name: 'Bonk' },
+            { id: 'shiba-inu', symbol: 'SHIB', name: 'Shiba Inu' },
+            { id: 'binancecoin', symbol: 'BNB', name: 'BNB' }
+        ];
+
+        let realData = [];
+
+        // Sistema de Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            if (password === CORRECT_PASSWORD) {
+                login();
+            } else {
+                showLoginError();
+                document.getElementById('password').value = '';
+            }
+        });
+
+        function showLoginError() {
+            const errorDiv = document.getElementById('errorLogin');
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function login() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            localStorage.setItem('cryptoSignalsAuth', 'true');
+            loadRealData();
+            startRealTimeUpdates();
+        }
+
+        function logout() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+            localStorage.removeItem('cryptoSignalsAuth');
+            document.getElementById('password').value = '';
+        }
+
+        // Verificar se já está logado
+        if (localStorage.getItem('cryptoSignalsAuth') === 'true') {
+            login();
+        }
+
+        async function loadRealData() {
+            try {
+                const coinIds = COINS.map(coin => coin.id).join(',');
+                const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                realData = COINS.map(coin => {
+                    const coinData = data[coin.id];
+                    if (!coinData) return null;
+                    
+                    return {
+                        symbol: coin.symbol,
+                        name: coin.name,
+                        current_price: coinData.usd,
+                        change_24h: coinData.usd_24h_change,
+                        market_cap: coinData.usd_market_cap,
+                        volume_24h: coinData.usd_24h_vol,
+                        signal: generateSignal(coinData.usd_24h_change),
+                        confidence: Math.floor(Math.random() * 30) + 70 // 70-100%
+                    };
+                }).filter(coin => coin !== null);
+
+                renderRealData();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                showError('Erro ao carregar dados das APIs. Tentando novamente...');
+                setTimeout(loadRealData, 5000);
+            }
+        }
+
+        function generateSignal(change24h) {
+            if (change24h > 5) return 'BUY';
+            if (change24h < -5) return 'SELL';
+            return 'HOLD';
+        }
+
+        function formatPrice(price) {
+            if (price < 0.001) {
+                return price.toFixed(8);
+            } else if (price < 1) {
+                return price.toFixed(6);
+            } else if (price < 100) {
+                return price.toFixed(4);
+            } else {
+                return price.toFixed(2);
+            }
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e9) {
+                return (num / 1e9).toFixed(2) + 'B';
+            } else if (num >= 1e6) {
+                return (num / 1e6).toFixed(2) + 'M';
+            } else if (num >= 1e3) {
+                return (num / 1e3).toFixed(2) + 'K';
+            }
+            return num.toFixed(2);
+        }
+
+        function renderRealData() {
+            const container = document.getElementById('signalsContainer');
+            
+            if (realData.length === 0) {
+                container.innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Carregando dados 100% reais...</h3>
+                        <p>Conectando com APIs do CoinGecko</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="success-message">
+                    <h3>✅ Dados 100% Reais Carregados no Netlify!</h3>
+                    <p>Preços atualizados diretamente das APIs do CoinGecko</p>
+                </div>
+                <div class="signals-grid">
+                    ${realData.map(coin => `
+                        <div class="signal-card">
+                            <div class="signal-header">
+                                <div class="crypto-name">${coin.symbol}</div>
+                                <div class="signal-type ${coin.signal.toLowerCase()}">${coin.signal}</div>
+                            </div>
+                            
+                            <div class="price-target">
+                                <div class="price-current">
+                                    <span>Preço Atual:</span>
+                                    <span>US$ ${formatPrice(coin.current_price)}</span>
+                                </div>
+                                <div class="price-change">
+                                    <span>24h:</span>
+                                    <span class="change-24h ${coin.change_24h >= 0 ? 'positive' : 'negative'}">
+                                        ${coin.change_24h >= 0 ? '+' : ''}${coin.change_24h.toFixed(2)}%
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="signal-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Market Cap</div>
+                                    <div class="detail-value">$${formatNumber(coin.market_cap)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Volume 24h</div>
+                                    <div class="detail-value">$${formatNumber(coin.volume_24h)}</div>
+                                </div>
+                            </div>
+
+                            <div class="api-source">
+                                🌐 Netlify + 📡 CoinGecko API (100% Real)
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function updateStats() {
+            const now = new Date();
+            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('pt-BR');
+            document.getElementById('updateTime').textContent = now.toLocaleString('pt-BR');
+            document.getElementById('apiStatus').textContent = '🟢';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('signalsContainer');
+            container.innerHTML = `
+                <div class="error-message">
+                    <h3>⚠️ ${message}</h3>
+                </div>
+            `;
+        }
+
+        function startRealTimeUpdates() {
+            // Atualizar a cada 60 segundos (limite da API gratuita)
+            setInterval(loadRealData, 60000);
+        }
+    </script>
+</body>
+</html>
+
